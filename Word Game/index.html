@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #8bb9e0;
+            text-align: center;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #4886d2;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .word-display {
+            font-size: 24px;
+            letter-spacing: 5px;
+            margin: 20px 0;
+        }
+        .hint {
+            font-size: 18px;
+            color: #33363a;
+            margin: 10px 0;
+        }
+        .message {
+            margin: 10px 0;
+            color: #ff4500;
+            font-weight: bold;
+        }
+        input {
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #007bff;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #ec2b62;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #d5304b;
+        }
+        .hint-button {
+            margin-top: 10px;
+            background-color: #28a745;
+        }
+        .hint-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Word Guessing Game</h1>
+        <div class="word-display" id="wordDisplay">_ _ _ _ _</div>
+        <div class="hint" id="hint">Hint: Click "Hint" for a clue!</div>
+        <button class="hint-button" onclick="showHint()">Show Hint</button>
+        <input type="text" id="letterInput" maxlength="1" placeholder="Enter a letter">
+        <button onclick="checkLetter()">Guess</button>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const wordsWithHints = [
+            { word: "apple", hint: "A popular red or green fruit." },
+            { word: "banana", hint: "A long yellow fruit loved by monkeys." },
+            { word: "cherry", hint: "A small red fruit often used as a topping." },
+            { word: "grapes", hint: "A bunch of small, juicy fruits." },
+            { word: "orange", hint: "A citrus fruit known for its vitamin C." }
+        ];
+
+        let currentIndex = Math.floor(Math.random() * wordsWithHints.length);
+        let randomEntry = wordsWithHints[currentIndex];
+        let randomWord = randomEntry.word;
+        let hint = randomEntry.hint;
+        let guessedWord = Array(randomWord.length).fill("_");
+        let attempts = 5;
+
+        function updateDisplay() {
+            document.getElementById("wordDisplay").textContent = guessedWord.join(" ");
+        }
+
+        function showHint() {
+            document.getElementById("hint").textContent = `Hint: ${hint}`;
+        }
+
+        function resetGame() {
+            currentIndex = (currentIndex + 1) % wordsWithHints.length;
+            randomEntry = wordsWithHints[currentIndex];
+            randomWord = randomEntry.word;
+            hint = randomEntry.hint;
+            guessedWord = Array(randomWord.length).fill("_");
+            attempts = 5;
+            document.getElementById("letterInput").disabled = false;
+            document.getElementById("letterInput").value = "";
+            document.getElementById("message").textContent = "";
+            document.getElementById("hint").textContent = "Hint: Click \"Show Hint\" for a clue!";
+            updateDisplay();
+        }
+
+        function checkLetter() {
+            const input = document.getElementById("letterInput").value.toLowerCase();
+            const message = document.getElementById("message");
+
+            if (!input || input.length !== 1 || !/^[a-z]$/.test(input)) {
+                message.textContent = "Please enter a valid letter!";
+                return;
+            }
+
+            message.textContent = "";
+            let found = false;
+
+            for (let i = 0; i < randomWord.length; i++) {
+                if (randomWord[i] === input && guessedWord[i] === "_") {
+                    guessedWord[i] = input;
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                attempts--;
+                message.textContent = `Wrong guess! Attempts left: ${attempts}`;
+            }
+
+            updateDisplay();
+
+            if (guessedWord.join("") === randomWord) {
+                message.textContent = "Congratulations! You guessed the word! Starting next word...";
+                setTimeout(resetGame, 2000);
+            } else if (attempts <= 0) {
+                message.textContent = `Game Over! The word was \"${randomWord}\". Starting next word...`;
+                setTimeout(resetGame, 2000);
+            }
+
+            document.getElementById("letterInput").value = "";
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>
